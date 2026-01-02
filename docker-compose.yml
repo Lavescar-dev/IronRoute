@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # --- 1. Veritabanı (PostgreSQL) ---
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=ironroute_db
+      - POSTGRES_USER=ironroute_user
+      - POSTGRES_PASSWORD=ironroute_pass
+
+  # --- 2. Backend (Django) ---
+  backend:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DB_NAME=ironroute_db
+      - DB_USER=ironroute_user
+      - DB_PASSWORD=ironroute_pass
+      - DB_HOST=db
+
+  # --- 3. Frontend (React) ---
+  frontend:
+    build: ./frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8000/api/
+
+volumes:
+  postgres_data:
