@@ -40,8 +40,8 @@ Lojistik ve filo yönetimi için profesyonel CRM uygulaması.
 
 ```bash
 # Repository'yi klonla
-git clone https://github.com/username/IronRoute-Core.git
-cd IronRoute-Core
+git clone https://github.com/Lavescar-dev/IronRoute.git
+cd IronRoute
 
 # Environment dosyasını oluştur
 cp .env.example .env
