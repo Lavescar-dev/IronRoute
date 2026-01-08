@@ -1,0 +1,51 @@
+# ===========================================
+# Python / Django
+# ===========================================
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.env
+*.env.local
+db.sqlite3
+*.log
+local_settings.py
+staticfiles/
+logs/
+*.sqlite3
+
+# ===========================================
+# Node / React
+# ===========================================
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# ===========================================
+# IDE / Editor
+# ===========================================
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ===========================================
+# Testing / Coverage
+# ===========================================
+htmlcov/
+.coverage
+.pytest_cache/
+coverage.xml
+
+# ===========================================
+# Build / Dist
+# ===========================================
+build/
+dist/
+*.egg-info/
