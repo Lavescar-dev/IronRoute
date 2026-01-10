@@ -35,12 +35,18 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-dev-only-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 'yes')
 
-# Allowed hosts - read from environment or use defaults
-ALLOWED_HOSTS = [
+# Allowed hosts - always include common hosts plus any from environment
+_env_hosts = [
     host.strip()
-    for host in os.environ.get('ALLOWED_HOSTS', '*').split(',')
+    for host in os.environ.get('ALLOWED_HOSTS', '').split(',')
     if host.strip()
 ]
+ALLOWED_HOSTS = list(set(_env_hosts + [
+    '*',
+    'localhost',
+    '127.0.0.1',
+    '91.99.192.155',
+]))
 
 # CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
