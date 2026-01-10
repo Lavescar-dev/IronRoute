@@ -14,6 +14,6 @@ RUN pip install psycopg2-binary gunicorn
 # 4. Kodları kopyala
 COPY . .
 
-# 5. Başlat (GÜNCELLENDİ)
-# Şu an web sunucusunu (manage.py) değil, test simülasyonunu (src/main.py) çalıştırıyoruz.
-CMD ["python", "src/main.py"]
+# 5. Başlat
+# Django web sunucusunu çalıştır
+CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"]

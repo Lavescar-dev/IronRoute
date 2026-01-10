@@ -35,12 +35,21 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-dev-only-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 'yes')
 
-# Allowed hosts
-ALLOWED_HOSTS = ['*']
+# Allowed hosts - read from environment or use defaults
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get('ALLOWED_HOSTS', '*').split(',')
+    if host.strip()
+]
+
+# CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
     'http://91.99.192.155',
     'http://91.99.192.155:8001',
-    'http://localhost:8001'
+    'https://91.99.192.155',
+    'https://91.99.192.155:8001',
+    'http://localhost:8001',
+    'http://localhost:8000',
 ]
 
 
@@ -214,7 +223,7 @@ SIMPLE_JWT = {
 # Get allowed origins from environment
 CORS_ALLOWED_ORIGINS = [
     origin.strip()
-    for origin in os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:5173', 'http://91.99.192.155:8001').split(',')
+    for origin in os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,http://91.99.192.155:8001,http://91.99.192.155:5173').split(',')
     if origin.strip()
 ]
 
@@ -297,20 +306,21 @@ LOGGING = {
 # SECURITY SETTINGS (Production)
 # ===========================================
 
-if not DEBUG:
-    # HTTPS/SSL Settings
+# HTTPS/SSL Settings - controlled by environment
+USE_HTTPS = os.environ.get('USE_HTTPS', 'False').lower() in ('true', '1', 'yes')
+
+if USE_HTTPS:
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
-    # Cookie Security
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-
-    # HSTS
     SECURE_HSTS_SECONDS = 31536000  # 1 year
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
+else:
+    SECURE_SSL_REDIRECT = False
 
+if not DEBUG:
     # Content Security
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
