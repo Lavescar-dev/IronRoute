@@ -38,7 +38,7 @@ DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 'yes')
 # Allowed hosts
 ALLOWED_HOSTS = [
     host.strip()
-    for host in os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+    for host in os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1','91.99.192.155').split(',')
     if host.strip()
 ]
 
@@ -213,7 +213,7 @@ SIMPLE_JWT = {
 # Get allowed origins from environment
 CORS_ALLOWED_ORIGINS = [
     origin.strip()
-    for origin in os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:5173').split(',')
+    for origin in os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:5173', 'http://91.99.192.155:8001').split(',')
     if origin.strip()
 ]
 
