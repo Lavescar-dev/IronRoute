@@ -36,21 +36,26 @@ Lojistik ve filo yönetimi için profesyonel CRM uygulaması.
 - Node.js 18+ (lokal geliştirme için)
 - Python 3.11+ (lokal geliştirme için)
 
-### Hızlı Başlangıç (Docker)
+### Hızlı Başlangıç (Docker) - Tek Komut!
 
 ```bash
-# Repository'yi klonla
+# Repository'yi klonla ve başlat
 git clone https://github.com/Lavescar-dev/IronRoute.git
 cd IronRoute
+./setup.sh
+```
 
-# Environment dosyasını oluştur
-cp .env.example .env
+**Hepsi bu kadar!** Script otomatik olarak:
+- `.env` dosyasını oluşturur
+- Docker container'larını başlatır
+- Veritabanı migration'larını çalıştırır
+- Admin kullanıcısını oluşturur (`admin` / `1234`)
 
-# Container'ları başlat
+#### Manuel Kurulum (Alternatif)
+
+```bash
+# Container'ları başlat (.env dosyası olmadan da çalışır)
 docker compose up -d
-
-# Admin kullanıcısı oluştur
-docker exec ironroute_backend python manage.py createsuperuser
 ```
 
 Uygulama aşağıdaki adreslerde çalışacak:

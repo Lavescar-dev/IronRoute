@@ -84,7 +84,7 @@ const transformPaginatedResponse = (response) => {
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Vehicle', 'Driver', 'Shipment', 'Customer', 'Dashboard'],
+  tagTypes: ['Vehicle', 'Driver', 'Shipment', 'Customer', 'Dashboard', 'Notification', 'Invoice', 'Route', 'Maintenance', 'FuelRecord', 'VehicleLocation'],
   endpoints: (builder) => ({
     // ===========================================
     // DASHBOARD
@@ -317,6 +317,263 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: [{ type: 'Customer', id: 'LIST' }],
     }),
+
+    // ===========================================
+    // NOTIFICATIONS
+    // ===========================================
+    getNotifications: builder.query({
+      query: (params) => ({
+        url: 'notifications/',
+        params,
+      }),
+      transformResponse: transformPaginatedResponse,
+      providesTags: (result) =>
+        result && Array.isArray(result)
+          ? [
+              ...result.map(({ id }) => ({ type: 'Notification', id })),
+              { type: 'Notification', id: 'LIST' },
+            ]
+          : [{ type: 'Notification', id: 'LIST' }],
+    }),
+
+    getUnreadNotificationsCount: builder.query({
+      query: () => 'notifications/unread_count/',
+      providesTags: ['Notification'],
+    }),
+
+    markNotificationRead: builder.mutation({
+      query: (id) => ({
+        url: `notifications/${id}/mark_read/`,
+        method: 'POST',
+      }),
+      invalidatesTags: (result, error, id) => [
+        { type: 'Notification', id },
+        { type: 'Notification', id: 'LIST' },
+      ],
+    }),
+
+    markAllNotificationsRead: builder.mutation({
+      query: () => ({
+        url: 'notifications/mark_all_read/',
+        method: 'POST',
+      }),
+      invalidatesTags: ['Notification'],
+    }),
+
+    // ===========================================
+    // INVOICES
+    // ===========================================
+    getInvoices: builder.query({
+      query: (params) => ({
+        url: 'invoices/',
+        params,
+      }),
+      transformResponse: transformPaginatedResponse,
+      providesTags: (result) =>
+        result && Array.isArray(result)
+          ? [
+              ...result.map(({ id }) => ({ type: 'Invoice', id })),
+              { type: 'Invoice', id: 'LIST' },
+            ]
+          : [{ type: 'Invoice', id: 'LIST' }],
+    }),
+
+    getInvoice: builder.query({
+      query: (id) => `invoices/${id}/`,
+      providesTags: (result, error, id) => [{ type: 'Invoice', id }],
+    }),
+
+    createInvoice: builder.mutation({
+      query: (data) => ({
+        url: 'invoices/',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: [{ type: 'Invoice', id: 'LIST' }, 'Dashboard'],
+    }),
+
+    updateInvoice: builder.mutation({
+      query: ({ id, ...data }) => ({
+        url: `invoices/${id}/`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Invoice', id },
+        { type: 'Invoice', id: 'LIST' },
+      ],
+    }),
+
+    markInvoicePaid: builder.mutation({
+      query: (id) => ({
+        url: `invoices/${id}/mark_paid/`,
+        method: 'POST',
+      }),
+      invalidatesTags: (result, error, id) => [
+        { type: 'Invoice', id },
+        { type: 'Invoice', id: 'LIST' },
+        'Dashboard',
+      ],
+    }),
+
+    deleteInvoice: builder.mutation({
+      query: (id) => ({
+        url: `invoices/${id}/`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: [{ type: 'Invoice', id: 'LIST' }],
+    }),
+
+    // ===========================================
+    // ROUTES
+    // ===========================================
+    getRoutes: builder.query({
+      query: (params) => ({
+        url: 'routes/',
+        params,
+      }),
+      transformResponse: transformPaginatedResponse,
+      providesTags: (result) =>
+        result && Array.isArray(result)
+          ? [
+              ...result.map(({ id }) => ({ type: 'Route', id })),
+              { type: 'Route', id: 'LIST' },
+            ]
+          : [{ type: 'Route', id: 'LIST' }],
+    }),
+
+    getRoute: builder.query({
+      query: (id) => `routes/${id}/`,
+      providesTags: (result, error, id) => [{ type: 'Route', id }],
+    }),
+
+    createRoute: builder.mutation({
+      query: (data) => ({
+        url: 'routes/',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: [{ type: 'Route', id: 'LIST' }],
+    }),
+
+    optimizeRoute: builder.mutation({
+      query: (id) => ({
+        url: `routes/${id}/optimize/`,
+        method: 'POST',
+      }),
+      invalidatesTags: (result, error, id) => [
+        { type: 'Route', id },
+        { type: 'Route', id: 'LIST' },
+      ],
+    }),
+
+    deleteRoute: builder.mutation({
+      query: (id) => ({
+        url: `routes/${id}/`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: [{ type: 'Route', id: 'LIST' }],
+    }),
+
+    // ===========================================
+    // MAINTENANCE
+    // ===========================================
+    getMaintenanceRecords: builder.query({
+      query: (params) => ({
+        url: 'maintenance/',
+        params,
+      }),
+      transformResponse: transformPaginatedResponse,
+      providesTags: (result) =>
+        result && Array.isArray(result)
+          ? [
+              ...result.map(({ id }) => ({ type: 'Maintenance', id })),
+              { type: 'Maintenance', id: 'LIST' },
+            ]
+          : [{ type: 'Maintenance', id: 'LIST' }],
+    }),
+
+    getMaintenanceRecord: builder.query({
+      query: (id) => `maintenance/${id}/`,
+      providesTags: (result, error, id) => [{ type: 'Maintenance', id }],
+    }),
+
+    createMaintenanceRecord: builder.mutation({
+      query: (data) => ({
+        url: 'maintenance/',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: [{ type: 'Maintenance', id: 'LIST' }, { type: 'Vehicle', id: 'LIST' }],
+    }),
+
+    updateMaintenanceRecord: builder.mutation({
+      query: ({ id, ...data }) => ({
+        url: `maintenance/${id}/`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Maintenance', id },
+        { type: 'Maintenance', id: 'LIST' },
+      ],
+    }),
+
+    deleteMaintenanceRecord: builder.mutation({
+      query: (id) => ({
+        url: `maintenance/${id}/`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: [{ type: 'Maintenance', id: 'LIST' }],
+    }),
+
+    // ===========================================
+    // FUEL RECORDS
+    // ===========================================
+    getFuelRecords: builder.query({
+      query: (params) => ({
+        url: 'fuel-records/',
+        params,
+      }),
+      transformResponse: transformPaginatedResponse,
+      providesTags: (result) =>
+        result && Array.isArray(result)
+          ? [
+              ...result.map(({ id }) => ({ type: 'FuelRecord', id })),
+              { type: 'FuelRecord', id: 'LIST' },
+            ]
+          : [{ type: 'FuelRecord', id: 'LIST' }],
+    }),
+
+    createFuelRecord: builder.mutation({
+      query: (data) => ({
+        url: 'fuel-records/',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: [{ type: 'FuelRecord', id: 'LIST' }, { type: 'Vehicle', id: 'LIST' }],
+    }),
+
+    // ===========================================
+    // VEHICLE LOCATIONS (GPS)
+    // ===========================================
+    getVehicleLocations: builder.query({
+      query: (vehicleId) => `vehicle-locations/?vehicle=${vehicleId}`,
+      transformResponse: transformPaginatedResponse,
+      providesTags: ['VehicleLocation'],
+    }),
+
+    getLatestVehicleLocation: builder.query({
+      query: (vehicleId) => `vehicles/${vehicleId}/latest_location/`,
+      providesTags: (result, error, vehicleId) => [{ type: 'VehicleLocation', id: vehicleId }],
+    }),
+
+    // ===========================================
+    // PUBLIC TRACKING
+    // ===========================================
+    trackShipment: builder.query({
+      query: (token) => `shipments/track/${token}/`,
+    }),
   }),
 });
 
@@ -356,4 +613,43 @@ export const {
   useCreateCustomerMutation,
   useUpdateCustomerMutation,
   useDeleteCustomerMutation,
+
+  // Notifications
+  useGetNotificationsQuery,
+  useGetUnreadNotificationsCountQuery,
+  useMarkNotificationReadMutation,
+  useMarkAllNotificationsReadMutation,
+
+  // Invoices
+  useGetInvoicesQuery,
+  useGetInvoiceQuery,
+  useCreateInvoiceMutation,
+  useUpdateInvoiceMutation,
+  useMarkInvoicePaidMutation,
+  useDeleteInvoiceMutation,
+
+  // Routes
+  useGetRoutesQuery,
+  useGetRouteQuery,
+  useCreateRouteMutation,
+  useOptimizeRouteMutation,
+  useDeleteRouteMutation,
+
+  // Maintenance
+  useGetMaintenanceRecordsQuery,
+  useGetMaintenanceRecordQuery,
+  useCreateMaintenanceRecordMutation,
+  useUpdateMaintenanceRecordMutation,
+  useDeleteMaintenanceRecordMutation,
+
+  // Fuel Records
+  useGetFuelRecordsQuery,
+  useCreateFuelRecordMutation,
+
+  // Vehicle Locations
+  useGetVehicleLocationsQuery,
+  useGetLatestVehicleLocationQuery,
+
+  // Public Tracking
+  useTrackShipmentQuery,
 } = apiSlice;

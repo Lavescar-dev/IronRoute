@@ -55,10 +55,13 @@ urlpatterns = [
     # API ENDPOINTS
     # ===========================================
 
-    # Fleet Module (vehicles, drivers)
+    # Core Module (users, notifications, audit logs)
+    path('api/', include('core.urls')),
+
+    # Fleet Module (vehicles, drivers, maintenance, fuel, locations)
     path('api/', include('fleet.urls')),
 
-    # Logistics Module (shipments, customers, dashboard)
+    # Logistics Module (shipments, customers, routes, invoices, dashboard)
     path('api/', include('logistics.urls')),
 
     # ===========================================

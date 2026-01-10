@@ -38,6 +38,10 @@ import {
   ExitToApp as LogoutIcon,
   Menu as MenuIcon,
   ChevronLeft as ChevronLeftIcon,
+  Receipt as InvoiceIcon,
+  Route as RouteIcon,
+  Build as MaintenanceIcon,
+  Notifications as NotificationsIcon,
 } from '@mui/icons-material';
 import { logout, selectUser } from '../store/slices/authSlice';
 import {
@@ -77,9 +81,24 @@ const menuItems = [
     path: '/shipments',
   },
   {
+    text: 'Rotalar',
+    icon: <RouteIcon />,
+    path: '/routes',
+  },
+  {
     text: 'Müşteriler',
     icon: <CustomersIcon />,
     path: '/customers',
+  },
+  {
+    text: 'Faturalar',
+    icon: <InvoiceIcon />,
+    path: '/invoices',
+  },
+  {
+    text: 'Bakım',
+    icon: <MaintenanceIcon />,
+    path: '/maintenance',
   },
   {
     text: 'Raporlar',
