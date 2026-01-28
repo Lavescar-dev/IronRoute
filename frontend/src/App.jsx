@@ -32,6 +32,9 @@ import Vehicles from './pages/Vehicles';
 import Drivers from './pages/Drivers';
 import Shipments from './pages/Shipments';
 import Customers from './pages/Customers';
+import RoutesPage from './pages/Routes';
+import Invoices from './pages/Invoices';
+import Maintenance from './pages/Maintenance';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 
@@ -79,6 +82,9 @@ const AppContent = () => {
           <Route path="/drivers" element={<Drivers />} />
           <Route path="/shipments" element={<Shipments />} />
           <Route path="/customers" element={<Customers />} />
+          <Route path="/routes" element={<RoutesPage />} />
+          <Route path="/invoices" element={<Invoices />} />
+          <Route path="/maintenance" element={<Maintenance />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/settings" element={<Settings />} />
         </Route>
