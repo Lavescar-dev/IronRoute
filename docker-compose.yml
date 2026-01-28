@@ -1,57 +1,6 @@
 services:
   # ===========================================
-  # DATABASE (PostgreSQL)
-  # ===========================================
-  db:
-    image: postgres:15-alpine
-    container_name: ironroute_db
-    restart: unless-stopped
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_DB=${DB_NAME:-ironroute_db}
-      - POSTGRES_USER=${DB_USER:-ironroute_user}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-ironroute_pass}
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-ironroute_user} -d ${DB_NAME:-ironroute_db}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - ironroute_network
-
-  # ===========================================
-  # BACKEND (Django + Gunicorn)
-  # ===========================================
-  backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: ironroute_backend
-    restart: unless-stopped
-    volumes:
-      - static_volume:/app/staticfiles
-      - logs_volume:/app/logs
-    env_file:
-      - path: .env
-        required: false
-      - path: .env.example
-        required: false
-    environment:
-      - DB_HOST=db
-    depends_on:
-      db:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/admin/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - ironroute_network
-
-  # ===========================================
-  # FRONTEND (React + Nginx reverse proxy)
+  # FRONTEND (React + Nginx - MSW Demo Mode)
   # ===========================================
   frontend:
     build:
@@ -61,23 +10,8 @@ services:
     restart: unless-stopped
     ports:
       - "3000:80"
-    volumes:
-      - static_volume:/app/staticfiles:ro
-    depends_on:
-      - backend
     networks:
       - ironroute_network
-
-# ===========================================
-# VOLUMES
-# ===========================================
-volumes:
-  postgres_data:
-    name: ironroute_postgres_data
-  static_volume:
-    name: ironroute_static
-  logs_volume:
-    name: ironroute_logs
 
 # ===========================================
 # NETWORKS
