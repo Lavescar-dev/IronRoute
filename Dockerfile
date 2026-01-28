@@ -1,19 +1,27 @@
-# 1. Python 3.12 kullan
+# ===========================================
+# IronRoute Backend - Production Image
+# ===========================================
 FROM python:3.12-slim
 
-# 2. Çalışma klasörü
 WORKDIR /app
 
-# 3. Kütüphaneleri kur
-COPY requirements.txt .
-# --no-cache-dir ile imajı şişirmiyoruz
-RUN pip install --no-cache-dir -r requirements.txt
-# Not: psycopg2 ve gunicorn ileride Web sunucusu için lazım olacak, şimdilik kalabilir.
-RUN pip install psycopg2-binary gunicorn
+# System dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# 4. Kodları kopyala
+# Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
 COPY . .
 
-# 5. Başlat
-# Django web sunucusunu çalıştır
-CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"]
+# Create logs directory
+RUN mkdir -p /app/logs
+
+# Expose port
+EXPOSE 8000
+
+# Production startup: migrate, collectstatic, then gunicorn
+CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn ironroutecore.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120 --access-logfile - --error-logfile -"]

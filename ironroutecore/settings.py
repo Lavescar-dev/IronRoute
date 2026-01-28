@@ -42,19 +42,17 @@ _env_hosts = [
     if host.strip()
 ]
 ALLOWED_HOSTS = list(set(_env_hosts + [
-    '*',
     'localhost',
     '127.0.0.1',
-    '91.99.192.155',
+    'backend',
+    'ironroute.lavescar.com.tr',
 ]))
 
 # CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
-    'http://91.99.192.155',
-    'http://91.99.192.155:8001',
-    'https://91.99.192.155',
-    'https://91.99.192.155:8001',
-    'http://localhost:8001',
+    'http://ironroute.lavescar.com.tr',
+    'https://ironroute.lavescar.com.tr',
+    'http://localhost',
     'http://localhost:8000',
 ]
 
@@ -229,7 +227,7 @@ SIMPLE_JWT = {
 # Get allowed origins from environment
 CORS_ALLOWED_ORIGINS = [
     origin.strip()
-    for origin in os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,http://91.99.192.155:8001,http://91.99.192.155:5173').split(',')
+    for origin in os.environ.get('CORS_ALLOWED_ORIGINS', 'http://ironroute.lavescar.com.tr,https://ironroute.lavescar.com.tr,http://localhost:5173').split(',')
     if origin.strip()
 ]
 

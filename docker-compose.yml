@@ -21,7 +21,7 @@ services:
       - ironroute_network
 
   # ===========================================
-  # BACKEND (Django)
+  # BACKEND (Django + Gunicorn)
   # ===========================================
   backend:
     build:
@@ -29,16 +29,9 @@ services:
       dockerfile: Dockerfile
     container_name: ironroute_backend
     restart: unless-stopped
-    command: >
-      sh -c "python manage.py migrate --noinput &&
-             python manage.py collectstatic --noinput &&
-             python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - .:/app
       - static_volume:/app/staticfiles
       - logs_volume:/app/logs
-    ports:
-      - "8001:8000"
     env_file:
       - path: .env
         required: false
@@ -50,7 +43,7 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/admin/')"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/admin/"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -58,7 +51,7 @@ services:
       - ironroute_network
 
   # ===========================================
-  # FRONTEND (React + Vite - Production with nginx)
+  # FRONTEND (React + Nginx reverse proxy)
   # ===========================================
   frontend:
     build:
@@ -67,7 +60,9 @@ services:
     container_name: ironroute_frontend
     restart: unless-stopped
     ports:
-      - "5173:80"
+      - "80:80"
+    volumes:
+      - static_volume:/app/staticfiles:ro
     depends_on:
       - backend
     networks:
