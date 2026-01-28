@@ -31,14 +31,18 @@ import {
   Delete as DeleteIcon,
   Phone as PhoneIcon,
   Badge as BadgeIcon,
+  PhoneIphone as MobileIcon,
 } from '@mui/icons-material';
 
 // Components
 import DataTable from '../components/common/DataTable';
+import DriverMobilePreview from '../components/drivers/DriverMobilePreview';
 
 // Redux
 import {
   useGetDriversQuery,
+  useGetShipmentsQuery,
+  useGetRoutesQuery,
   useCreateDriverMutation,
   useUpdateDriverMutation,
   useDeleteDriverMutation,
@@ -70,6 +74,8 @@ const Drivers = () => {
 
   // RTK Query hooks
   const { data: drivers = [], isLoading, refetch } = useGetDriversQuery();
+  const { data: shipments = [] } = useGetShipmentsQuery();
+  const { data: routes = [] } = useGetRoutesQuery();
   const [createDriver, { isLoading: isCreating }] = useCreateDriverMutation();
   const [updateDriver, { isLoading: isUpdating }] = useUpdateDriverMutation();
   const [deleteDriver] = useDeleteDriverMutation();
@@ -80,6 +86,7 @@ const Drivers = () => {
   const [formData, setFormData] = useState(initialFormData);
   const [errors, setErrors] = useState({});
   const [generalError, setGeneralError] = useState('');
+  const [mobilePreviewDriver, setMobilePreviewDriver] = useState(null);
 
   // ===========================================
   // TABLE COLUMNS
@@ -164,6 +171,18 @@ const Drivers = () => {
       sortable: false,
       renderCell: (row) => (
         <Box>
+          <Tooltip title="Mobil Gorunum">
+            <IconButton
+              size="small"
+              color="info"
+              onClick={(e) => {
+                e.stopPropagation();
+                setMobilePreviewDriver(row);
+              }}
+            >
+              <MobileIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
           <Tooltip title="Düzenle">
             <IconButton
               size="small"
@@ -368,6 +387,15 @@ const Drivers = () => {
         onExport={handleExport}
         onRefresh={refetch}
         emptyMessage="Henüz sürücü eklenmemiş."
+      />
+
+      {/* Driver Mobile Preview */}
+      <DriverMobilePreview
+        open={!!mobilePreviewDriver}
+        onClose={() => setMobilePreviewDriver(null)}
+        driver={mobilePreviewDriver}
+        shipments={shipments}
+        routes={routes}
       />
 
       {/* Add/Edit Dialog */}

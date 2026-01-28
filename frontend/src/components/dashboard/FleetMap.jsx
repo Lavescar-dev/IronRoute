@@ -4,27 +4,53 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet'; // Leaflet kütüphanesi şart!
 
-// --- 1. SVG İKON MOTORU (Burası Eksikti veya Hatalıydı) ---
+// --- 3D TRUCK ICON ENGINE ---
 const createTruckIcon = (status) => {
-  let color = '#757575'; // Varsayılan Gri
-  if (status === 'active') color = '#2e7d32';      // Yeşil
-  if (status === 'idle') color = '#ed6c02';        // Turuncu
-  if (status === 'maintenance') color = '#d32f2f'; // Kırmızı
+  let color = '#757575';
+  let lighterColor = '#9E9E9E';
+  let darkerColor = '#555555';
+  if (status === 'active') { color = '#2e7d32'; lighterColor = '#4CAF50'; darkerColor = '#1B5E20'; }
+  if (status === 'idle') { color = '#ed6c02'; lighterColor = '#FF9800'; darkerColor = '#BF360C'; }
+  if (status === 'maintenance') { color = '#d32f2f'; lighterColor = '#EF5350'; darkerColor = '#B71C1C'; }
 
-  // SVG Kodunun Kendisi
   const svgString = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" fill="${color}" stroke="white" stroke-width="1">
-      <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" style="filter: drop-shadow(0 3px 4px rgba(0,0,0,0.4)); transform: perspective(800px) rotateX(15deg);">
+      <!-- Shadow -->
+      <ellipse cx="24" cy="44" rx="16" ry="3" fill="rgba(0,0,0,0.25)"/>
+      <!-- Cargo body -->
+      <rect x="6" y="10" width="28" height="22" rx="3" fill="${color}" stroke="${darkerColor}" stroke-width="1.5"/>
+      <!-- Cargo side lines (depth) -->
+      <line x1="10" y1="14" x2="10" y2="28" stroke="${darkerColor}" stroke-width="0.5" opacity="0.5"/>
+      <line x1="18" y1="14" x2="18" y2="28" stroke="${darkerColor}" stroke-width="0.5" opacity="0.5"/>
+      <line x1="26" y1="14" x2="26" y2="28" stroke="${darkerColor}" stroke-width="0.5" opacity="0.5"/>
+      <!-- Cabin -->
+      <rect x="30" y="16" width="14" height="16" rx="2" fill="${lighterColor}" stroke="${darkerColor}" stroke-width="1"/>
+      <!-- Windshield -->
+      <rect x="32" y="18" width="10" height="7" rx="1" fill="#87CEEB" opacity="0.8"/>
+      <!-- Windshield reflection -->
+      <line x1="33" y1="19" x2="36" y2="24" stroke="white" stroke-width="0.8" opacity="0.4"/>
+      <!-- Wheels -->
+      <circle cx="14" cy="34" r="4" fill="#333"/>
+      <circle cx="36" cy="34" r="4" fill="#333"/>
+      <!-- Hubcaps -->
+      <circle cx="14" cy="34" r="2" fill="#888"/>
+      <circle cx="36" cy="34" r="2" fill="#888"/>
+      <!-- Hubcap detail -->
+      <circle cx="14" cy="34" r="0.8" fill="#555"/>
+      <circle cx="36" cy="34" r="0.8" fill="#555"/>
+      <!-- Headlights -->
+      <rect x="42" y="24" width="2" height="4" rx="1" fill="#FFD700"/>
+      <!-- Tail lights -->
+      <rect x="4" y="26" width="2" height="3" rx="0.5" fill="#FF4444"/>
     </svg>
   `;
 
-  // Leaflet'e bu HTML'i ikon olarak kullanmasını söylüyoruz
   return L.divIcon({
-    className: 'custom-truck-icon', // CSS class (boş olsa da olur)
+    className: 'custom-truck-icon-3d',
     html: svgString,
-    iconSize: [32, 32],   // İkonun kaplayacağı alan
-    iconAnchor: [16, 16], // İkonun tam ortası koordinata denk gelsin
-    popupAnchor: [0, -10] // Popup tepede çıksın
+    iconSize: [48, 48],
+    iconAnchor: [24, 24],
+    popupAnchor: [0, -16]
   });
 };
 

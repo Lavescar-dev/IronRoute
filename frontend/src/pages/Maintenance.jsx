@@ -40,6 +40,7 @@ import {
 
 // Components
 import DataTable from '../components/common/DataTable';
+import VehicleMaintenanceDialog from '../components/maintenance/VehicleMaintenanceDialog';
 
 // Redux
 import {
@@ -125,6 +126,7 @@ const Maintenance = () => {
   // Local state
   const [maintenanceOpen, setMaintenanceOpen] = useState(false);
   const [fuelOpen, setFuelOpen] = useState(false);
+  const [timelinePlate, setTimelinePlate] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [maintenanceForm, setMaintenanceForm] = useState(initialMaintenanceForm);
   const [fuelForm, setFuelForm] = useState(initialFuelForm);
@@ -566,6 +568,7 @@ const Maintenance = () => {
           data={maintenanceRecords}
           loading={maintenanceLoading}
           onRefresh={refetchMaintenance}
+          onRowClick={(row) => setTimelinePlate(row.vehicle_plate)}
           emptyMessage="Henüz bakım kaydı yok."
         />
       ) : (
@@ -737,6 +740,15 @@ const Maintenance = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Vehicle Maintenance Timeline Dialog */}
+      <VehicleMaintenanceDialog
+        open={!!timelinePlate}
+        onClose={() => setTimelinePlate(null)}
+        vehiclePlate={timelinePlate}
+        allRecords={maintenanceRecords}
+        vehicles={vehicles}
+      />
 
       {/* Fuel Dialog */}
       <Dialog

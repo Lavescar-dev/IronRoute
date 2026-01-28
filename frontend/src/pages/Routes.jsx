@@ -45,6 +45,7 @@ import {
 
 // Components
 import DataTable from '../components/common/DataTable';
+import RouteDetailDialog from '../components/routes/RouteDetailDialog';
 
 // Redux
 import {
@@ -457,6 +458,7 @@ const Routes = () => {
         data={routes}
         loading={isLoading}
         onRefresh={refetch}
+        onRowClick={(row) => setSelectedRoute(row)}
         emptyMessage="Henüz rota oluşturulmamış."
       />
 
@@ -670,88 +672,12 @@ const Routes = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Route Detail Dialog */}
-      <Dialog
+      {/* Route Detail Dialog (fullscreen with map) */}
+      <RouteDetailDialog
         open={!!selectedRoute}
         onClose={() => setSelectedRoute(null)}
-        fullWidth
-        maxWidth="sm"
-        PaperProps={{ sx: { borderRadius: 3 } }}
-      >
-        <DialogTitle sx={{ borderBottom: 1, borderColor: 'divider', pb: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <RouteIcon color="primary" />
-            <Typography variant="h6">Rota Detayları</Typography>
-          </Box>
-        </DialogTitle>
-
-        <DialogContent sx={{ pt: 3 }}>
-          {selectedRoute && (
-            <Box>
-              <Typography variant="h6" gutterBottom>{selectedRoute.name}</Typography>
-
-              <Grid container spacing={2} sx={{ mb: 2 }}>
-                <Grid size={6}>
-                  <Typography variant="caption" color="text.secondary">Araç</Typography>
-                  <Typography variant="body2" fontWeight={500}>{selectedRoute.vehicle_plate || 'Atanmadı'}</Typography>
-                </Grid>
-                <Grid size={6}>
-                  <Typography variant="caption" color="text.secondary">Sürücü</Typography>
-                  <Typography variant="body2" fontWeight={500}>{selectedRoute.driver_name || 'Atanmadı'}</Typography>
-                </Grid>
-                <Grid size={6}>
-                  <Typography variant="caption" color="text.secondary">Toplam Mesafe</Typography>
-                  <Typography variant="body2" fontWeight={500}>{parseFloat(selectedRoute.total_distance_km || 0).toFixed(1)} km</Typography>
-                </Grid>
-                <Grid size={6}>
-                  <Typography variant="caption" color="text.secondary">Tahmini Süre</Typography>
-                  <Typography variant="body2" fontWeight={500}>
-                    {(() => {
-                      const mins = selectedRoute.total_duration_mins || 0;
-                      const hours = Math.floor(mins / 60);
-                      const remainingMins = mins % 60;
-                      return hours > 0 ? `${hours} saat ${remainingMins} dakika` : `${mins} dakika`;
-                    })()}
-                  </Typography>
-                </Grid>
-              </Grid>
-
-              <Divider sx={{ my: 2 }} />
-
-              <Typography variant="subtitle2" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <FlagIcon color="primary" fontSize="small" />
-                Duraklar
-              </Typography>
-
-              {selectedRoute.stops && selectedRoute.stops.length > 0 ? (
-                <List dense>
-                  {selectedRoute.stops.map((stop, index) => (
-                    <ListItem key={stop.id || index}>
-                      <ListItemIcon>
-                        <Chip size="small" label={stop.sequence || index + 1} color="primary" />
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={stop.shipment_destination || `Durak ${index + 1}`}
-                        secondary={stop.shipment_origin ? `${stop.shipment_origin} → ${stop.shipment_destination}` : null}
-                      />
-                    </ListItem>
-                  ))}
-                </List>
-              ) : (
-                <Typography variant="body2" color="text.secondary">
-                  Bu rota için durak bilgisi bulunmuyor.
-                </Typography>
-              )}
-            </Box>
-          )}
-        </DialogContent>
-
-        <DialogActions sx={{ p: 3, borderTop: 1, borderColor: 'divider' }}>
-          <Button onClick={() => setSelectedRoute(null)} color="inherit">
-            Kapat
-          </Button>
-        </DialogActions>
-      </Dialog>
+        route={selectedRoute}
+      />
     </Box>
   );
 };

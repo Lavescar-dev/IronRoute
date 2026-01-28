@@ -31,10 +31,12 @@ import {
   LocalShipping as VehicleIcon,
   Person as CustomerIcon,
   LocationOn as LocationIcon,
+  PhotoLibrary as PhotoIcon,
 } from '@mui/icons-material';
 
 // Components
 import DataTable from '../components/common/DataTable';
+import ShipmentPhotosDialog from '../components/shipments/ShipmentPhotosDialog';
 
 // Redux
 import {
@@ -90,6 +92,7 @@ const Shipments = () => {
   const [formData, setFormData] = useState(initialFormData);
   const [errors, setErrors] = useState({});
   const [generalError, setGeneralError] = useState('');
+  const [photosShipment, setPhotosShipment] = useState(null);
 
   // Filter available vehicles (IDLE status)
   const availableVehicles = vehicles.filter(
@@ -189,6 +192,20 @@ const Shipments = () => {
       sortable: false,
       renderCell: (row) => (
         <Box>
+          {row.photos && row.photos.length > 0 && (
+            <Tooltip title="Fotograflar">
+              <IconButton
+                size="small"
+                color="info"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setPhotosShipment(row);
+                }}
+              >
+                <PhotoIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
           <Tooltip title="Düzenle">
             <IconButton
               size="small"
@@ -384,6 +401,13 @@ const Shipments = () => {
         onExport={handleExport}
         onRefresh={refetch}
         emptyMessage="Henuz sevkiyat oluşturulmamış."
+      />
+
+      {/* Shipment Photos Dialog */}
+      <ShipmentPhotosDialog
+        open={!!photosShipment}
+        onClose={() => setPhotosShipment(null)}
+        shipment={photosShipment}
       />
 
       {/* Add/Edit Dialog */}
