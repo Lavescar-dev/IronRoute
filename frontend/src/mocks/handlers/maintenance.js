@@ -21,6 +21,20 @@ export const maintenanceHandlers = [
     return HttpResponse.json(paginate(items, request.url, params));
   }),
 
+  // GET /api/maintenance/archive/ (MUST be before :id handler)
+  http.get(`${API}maintenance/archive/`, async ({ request }) => {
+    await delay(1500); // Cold storage simulation
+    const url = new URL(request.url);
+    const vehicleId = url.searchParams.get('vehicle_id');
+
+    let items = [...db.maintenanceArchive];
+    if (vehicleId) {
+      items = items.filter((m) => m.vehicle_id === Number(vehicleId));
+    }
+
+    return HttpResponse.json(items);
+  }),
+
   // GET /api/maintenance/:id/
   http.get(`${API}maintenance/:id/`, async ({ params }) => {
     await delay(100);

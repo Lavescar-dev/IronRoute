@@ -29,7 +29,7 @@ const StatCard = ({ icon, label, value, color }) => (
   </Paper>
 );
 
-const MaintenanceStats = ({ records }) => {
+const MaintenanceStats = ({ records, showLifetimeLabel = false }) => {
   const totalCost = records.reduce(
     (sum, r) => sum + (parseFloat(r.cost) || 0),
     0
@@ -62,7 +62,7 @@ const MaintenanceStats = ({ records }) => {
       <Grid size={{ xs: 6, md: 3 }}>
         <StatCard
           icon={<MoneyIcon />}
-          label="Toplam Bakim Maliyeti"
+          label={showLifetimeLabel ? 'Omur Boyu Bakim Maliyeti' : 'Toplam Bakim Maliyeti'}
           value={formatCurrency(totalCost)}
           color="primary"
         />
@@ -70,7 +70,7 @@ const MaintenanceStats = ({ records }) => {
       <Grid size={{ xs: 6, md: 3 }}>
         <StatCard
           icon={<BuildIcon />}
-          label="Toplam Bakim Sayisi"
+          label={showLifetimeLabel ? 'Omur Boyu Bakim Sayisi' : 'Toplam Bakim Sayisi'}
           value={totalCount}
           color="info"
         />

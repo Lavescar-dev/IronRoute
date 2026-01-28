@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -10,16 +10,23 @@ import {
   Chip,
   Divider,
   IconButton,
+  CircularProgress,
 } from '@mui/material';
 import {
   Build as BuildIcon,
   Close as CloseIcon,
   LocalShipping as VehicleIcon,
+  Archive as ArchiveIcon,
 } from '@mui/icons-material';
+import { useLazyGetArchivedMaintenanceQuery } from '../../store/api/apiSlice';
 import MaintenanceStats from './MaintenanceStats';
 import MaintenanceTimeline from './MaintenanceTimeline';
 
 const VehicleMaintenanceDialog = ({ open, onClose, vehiclePlate, allRecords, vehicles }) => {
+  const [archiveRecords, setArchiveRecords] = useState([]);
+  const [archiveLoaded, setArchiveLoaded] = useState(false);
+  const [triggerArchive, { isFetching: archiveLoading }] = useLazyGetArchivedMaintenanceQuery();
+
   const vehicleRecords = useMemo(() => {
     if (!vehiclePlate) return [];
     return allRecords.filter((r) => r.vehicle_plate === vehiclePlate);
@@ -29,6 +36,27 @@ const VehicleMaintenanceDialog = ({ open, onClose, vehiclePlate, allRecords, veh
     if (!vehiclePlate || !vehicles) return null;
     return vehicles.find((v) => v.plate_number === vehiclePlate);
   }, [vehiclePlate, vehicles]);
+
+  const allCombinedRecords = useMemo(() => {
+    return [...vehicleRecords, ...archiveRecords];
+  }, [vehicleRecords, archiveRecords]);
+
+  // Reset archive state when dialog closes
+  useEffect(() => {
+    if (!open) {
+      setArchiveRecords([]);
+      setArchiveLoaded(false);
+    }
+  }, [open]);
+
+  const handleLoadArchive = async () => {
+    if (!vehicle) return;
+    const result = await triggerArchive(vehicle.id);
+    if (result.data) {
+      setArchiveRecords(result.data);
+      setArchiveLoaded(true);
+    }
+  };
 
   return (
     <Dialog
@@ -84,14 +112,14 @@ const VehicleMaintenanceDialog = ({ open, onClose, vehiclePlate, allRecords, veh
             )}
           </Box>
           <Chip
-            label={`${vehicleRecords.length} Bakim Kaydi`}
+            label={`${allCombinedRecords.length} Bakim Kaydi`}
             color="primary"
             sx={{ ml: 'auto' }}
           />
         </Box>
 
         {/* Stats */}
-        <MaintenanceStats records={vehicleRecords} />
+        <MaintenanceStats records={allCombinedRecords} showLifetimeLabel={archiveLoaded} />
 
         <Divider sx={{ my: 2 }} />
 
@@ -116,6 +144,54 @@ const VehicleMaintenanceDialog = ({ open, onClose, vehiclePlate, allRecords, veh
           >
             Bu araca ait bakim kaydi bulunamadi.
           </Typography>
+        )}
+
+        {/* Archive Section */}
+        {!archiveLoaded && (
+          <Box sx={{ textAlign: 'center', py: 3 }}>
+            <Button
+              variant="outlined"
+              startIcon={archiveLoading ? <CircularProgress size={18} /> : <ArchiveIcon />}
+              onClick={handleLoadArchive}
+              disabled={archiveLoading}
+              sx={{ borderStyle: 'dashed' }}
+            >
+              {archiveLoading ? 'Arsivden Yukleniyor...' : 'Arsivden Yukle (2017-2024)'}
+            </Button>
+            <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 1 }}>
+              Cold storage - ilk yuklemede gecikme olabilir
+            </Typography>
+          </Box>
+        )}
+
+        {archiveLoaded && archiveRecords.length > 0 && (
+          <>
+            <Divider sx={{ my: 3 }}>
+              <Chip
+                icon={<ArchiveIcon />}
+                label={`Arsiv Gecmisi (${archiveRecords.length} kayit)`}
+                variant="outlined"
+                color="default"
+              />
+            </Divider>
+            <MaintenanceTimeline records={archiveRecords} isArchive />
+          </>
+        )}
+
+        {archiveLoaded && archiveRecords.length === 0 && (
+          <>
+            <Divider sx={{ my: 3 }}>
+              <Chip icon={<ArchiveIcon />} label="Arsiv Gecmisi" variant="outlined" color="default" />
+            </Divider>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              textAlign="center"
+              sx={{ py: 2 }}
+            >
+              Bu araca ait arsiv kaydi bulunamadi.
+            </Typography>
+          </>
         )}
       </DialogContent>
 

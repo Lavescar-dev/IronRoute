@@ -493,6 +493,14 @@ export const apiSlice = createApi({
           : [{ type: 'Maintenance', id: 'LIST' }],
     }),
 
+    getArchivedMaintenance: builder.query({
+      query: (vehicleId) => ({
+        url: 'maintenance/archive/',
+        params: { vehicle_id: vehicleId },
+      }),
+      keepUnusedDataFor: 300,
+    }),
+
     getMaintenanceRecord: builder.query({
       query: (id) => `maintenance/${id}/`,
       providesTags: (result, error, id) => [{ type: 'Maintenance', id }],
@@ -637,6 +645,7 @@ export const {
 
   // Maintenance
   useGetMaintenanceRecordsQuery,
+  useLazyGetArchivedMaintenanceQuery,
   useGetMaintenanceRecordQuery,
   useCreateMaintenanceRecordMutation,
   useUpdateMaintenanceRecordMutation,

@@ -35,7 +35,7 @@ const STATUS_CONFIG = {
   CANCELLED: { color: 'default', label: 'Iptal' },
 };
 
-const MaintenanceTimeline = ({ records }) => {
+const MaintenanceTimeline = ({ records, isArchive = false }) => {
   const sorted = [...records].sort(
     (a, b) =>
       new Date(b.scheduled_date || b.created_at) -
@@ -77,7 +77,7 @@ const MaintenanceTimeline = ({ records }) => {
             <TimelineSeparator>
               <TimelineDot
                 sx={{
-                  bgcolor: typeConf.color,
+                  bgcolor: isArchive ? `${typeConf.color}99` : typeConf.color,
                   width: 36,
                   height: 36,
                   display: 'flex',
@@ -91,7 +91,16 @@ const MaintenanceTimeline = ({ records }) => {
             </TimelineSeparator>
 
             <TimelineContent sx={{ pb: 3 }}>
-              <Paper variant="outlined" sx={{ p: 2 }}>
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: 2,
+                  ...(isArchive && {
+                    bgcolor: 'action.hover',
+                    opacity: 0.9,
+                  }),
+                }}
+              >
                 <Box
                   sx={{
                     display: 'flex',
@@ -112,6 +121,14 @@ const MaintenanceTimeline = ({ records }) => {
                     color={statusConf.color}
                     variant="outlined"
                   />
+                  {isArchive && (
+                    <Chip
+                      label="Arsiv"
+                      size="small"
+                      variant="outlined"
+                      sx={{ borderColor: 'text.disabled', color: 'text.disabled' }}
+                    />
+                  )}
                 </Box>
 
                 <Typography variant="body2" sx={{ mb: 1 }}>
@@ -132,6 +149,37 @@ const MaintenanceTimeline = ({ records }) => {
                         <Chip key={i} label={part} size="small" variant="outlined" />
                       ))}
                     </Box>
+                  </Box>
+                )}
+
+                {/* Archive-specific enriched fields */}
+                {isArchive && (record.part_brand || record.breakdown_location || record.certificate_number || record.is_warranty_claim || record.repair_duration_hours > 4) && (
+                  <Box sx={{ mb: 1, p: 1, bgcolor: 'background.default', borderRadius: 1 }}>
+                    {record.part_brand && record.part_model && (
+                      <Typography variant="caption" display="block" color="text.secondary">
+                        Parca: {record.part_brand} {record.part_model}
+                        {record.original_part && ' (Orijinal)'}
+                      </Typography>
+                    )}
+                    {record.breakdown_location && (
+                      <Typography variant="caption" display="block" color="error.main">
+                        Ariza Yeri: {record.breakdown_location}
+                        {record.breakdown_city && ` (${record.breakdown_city})`}
+                      </Typography>
+                    )}
+                    {record.repair_duration_hours > 4 && (
+                      <Typography variant="caption" display="block" color="text.secondary">
+                        Onarim Suresi: {record.repair_duration_hours} saat
+                      </Typography>
+                    )}
+                    {record.is_warranty_claim && (
+                      <Chip label="Garanti Kapsaminda" size="small" color="success" variant="outlined" sx={{ mt: 0.5, mr: 0.5 }} />
+                    )}
+                    {record.certificate_number && (
+                      <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 0.5 }}>
+                        Sertifika: {record.certificate_number} ({record.certificate_issuer})
+                      </Typography>
+                    )}
                   </Box>
                 )}
 

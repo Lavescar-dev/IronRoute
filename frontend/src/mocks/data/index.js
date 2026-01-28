@@ -8,6 +8,7 @@ import { maintenance } from './maintenance.js';
 import { fuelRecords } from './fuelRecords.js';
 import { notifications } from './notifications.js';
 import { vehicleLocations } from './vehicleLocations.js';
+import { maintenanceArchive } from './maintenanceArchive.js';
 
 /**
  * Mutable in-memory database.
@@ -22,6 +23,7 @@ export const db = {
   invoices: [...invoices],
   routes: [...routes],
   maintenance: [...maintenance],
+  maintenanceArchive: [...maintenanceArchive],
   fuelRecords: [...fuelRecords],
   notifications: [...notifications],
   vehicleLocations: [...vehicleLocations],

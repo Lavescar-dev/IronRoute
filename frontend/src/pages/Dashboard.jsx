@@ -4,7 +4,7 @@
  * Modern dashboard with fleet statistics, charts, and activity feed
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
@@ -42,9 +42,10 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 
 // Components
 import FleetMap from '../components/dashboard/FleetMap';
+import VehicleDetailDialog from '../components/dashboard/VehicleDetailDialog';
 
 // Redux
-import { useGetDashboardStatsQuery, useGetVehiclesQuery, useGetShipmentsQuery, useGetDriversQuery, useGetCustomersQuery } from '../store/api/apiSlice';
+import { useGetDashboardStatsQuery, useGetVehiclesQuery, useGetShipmentsQuery, useGetDriversQuery, useGetCustomersQuery, useGetRoutesQuery, useGetMaintenanceRecordsQuery } from '../store/api/apiSlice';
 
 // Utils
 import { formatCurrency, formatDate, getRelativeTime } from '../utils/helpers';
@@ -228,6 +229,7 @@ const ActivityItem = ({ shipment }) => {
 
 const Dashboard = () => {
   const theme = useTheme();
+  const [selectedVehicleId, setSelectedVehicleId] = useState(null);
 
   // RTK Query hooks
   const { data: vehicles = [], isLoading: vehiclesLoading } = useGetVehiclesQuery(undefined, {
@@ -238,6 +240,8 @@ const Dashboard = () => {
   });
   const { data: drivers = [], isLoading: driversLoading } = useGetDriversQuery();
   const { data: customers = [], isLoading: customersLoading } = useGetCustomersQuery();
+  const { data: routes = [] } = useGetRoutesQuery();
+  const { data: maintenanceRecords = [] } = useGetMaintenanceRecordsQuery();
 
   const isLoading = vehiclesLoading || shipmentsLoading || driversLoading || customersLoading;
 
@@ -298,15 +302,19 @@ const Dashboard = () => {
 
   // Transform vehicles for map
   const mapTrucks = React.useMemo(() => {
-    return vehicles.map((v) => ({
-      id: v.id,
-      plate: v.plate_number,
-      status: v.status === 'TRANSIT' ? 'active' : v.status === 'MAINTENANCE' ? 'maintenance' : 'idle',
-      cargo: v.vehicle_type || 'N/A',
-      lat: v.current_lat || 39.9334 + (Math.random() - 0.5) * 2,
-      lng: v.current_lng || 32.8597 + (Math.random() - 0.5) * 4,
-    }));
-  }, [vehicles]);
+    return vehicles.map((v) => {
+      const driver = drivers.find((d) => d.current_vehicle === v.plate_number);
+      return {
+        id: v.id,
+        plate: v.plate_number,
+        status: v.status === 'TRANSIT' ? 'active' : v.status === 'MAINTENANCE' ? 'maintenance' : 'idle',
+        driver: driver ? `${driver.first_name} ${driver.last_name}` : 'Atanmamis',
+        cargo: v.vehicle_type || 'N/A',
+        lat: v.current_lat || 39.9334 + (Math.random() - 0.5) * 2,
+        lng: v.current_lng || 32.8597 + (Math.random() - 0.5) * 4,
+      };
+    });
+  }, [vehicles, drivers]);
 
   return (
     <Box>
@@ -384,7 +392,7 @@ const Dashboard = () => {
               {isLoading ? (
                 <Skeleton variant="rectangular" height="100%" />
               ) : (
-                <FleetMap trucks={mapTrucks} />
+                <FleetMap trucks={mapTrucks} onTruckClick={setSelectedVehicleId} />
               )}
             </Box>
           </Paper>
@@ -517,6 +525,18 @@ const Dashboard = () => {
           </Paper>
         </Grid>
       </Grid>
+
+      {/* Vehicle Detail Dialog */}
+      <VehicleDetailDialog
+        open={selectedVehicleId !== null}
+        onClose={() => setSelectedVehicleId(null)}
+        vehicleId={selectedVehicleId}
+        vehicles={vehicles}
+        drivers={drivers}
+        shipments={shipments}
+        routes={routes}
+        maintenanceRecords={maintenanceRecords}
+      />
     </Box>
   );
 };

@@ -54,7 +54,7 @@ const createTruckIcon = (status) => {
   });
 };
 
-const FleetMap = ({ trucks }) => {
+const FleetMap = ({ trucks, onTruckClick }) => {
   return (
     <Paper 
       elevation={3} 
@@ -78,10 +78,13 @@ const FleetMap = ({ trucks }) => {
         
         {/* 2. Kamyonları Haritaya Dizme */}
         {trucks.map((truck) => (
-          <Marker 
-            key={truck.id} 
-            position={[truck.lat, truck.lng]} 
-            icon={createTruckIcon(truck.status)} // <-- İŞTE SİHİR BURADA ÇAĞRILIYOR
+          <Marker
+            key={truck.id}
+            position={[truck.lat, truck.lng]}
+            icon={createTruckIcon(truck.status)}
+            eventHandlers={{
+              click: () => onTruckClick?.(truck.id),
+            }}
           >
             <Popup>
               <div style={{ textAlign: 'center', color: '#333' }}>
